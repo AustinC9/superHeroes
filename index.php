@@ -27,13 +27,20 @@ if ($result->num_rows > 0) {
 } else {
   echo "0 results";
 }
+$ally = "SELECT * FROM heroes WHERE heroes.id
+IN (SELECT hero2_id FROM relationships WHERE hero1_id = " . $_GET['profileid'] . " AND type_id = '1')";
+$newAlly = $conn->query($ally);
+$enemy = "SELECT * FROM heroes WHERE heroes.id
+IN (SELECT hero2_id FROM relationships WHERE hero1_id = " . $_GET['profileid'] . " AND type_id = '2')";
+$newEnemy = $conn->query($enemy);
 
-//$ally = SELECT hero
 $newOutput = '';
 $profile = "SELECT name, about_me, biography, image_url FROM heroes WHERE id=" . $_GET['profileid'];
 $getProf = $conn->query($profile);
 $conn->close();
 ?>
+
+
 
 <!doctype html>
 <html lang="en">
@@ -51,7 +58,6 @@ $conn->close();
 <?php include "header.php" ?>
 
 <body>
-  <?php include "delOrAdd.php" ?>
 
 
   <ul>
@@ -73,14 +79,61 @@ $conn->close();
           <p> <?php echo $row['about_me']; ?></p> <br>
           <p><?php echo $row['biography']; ?> </p> <br>
           <img alt='HeroPicture' src="<?php echo $row['image_url']; ?>" />
+          <div class='col-4'>
+            <h3>Friends</h3>
+            <?php if ($newAlly->num_rows > 0) {
+              while ($allyrow = $newAlly->fetch_assoc()) { ?>
+                <div class='card'>
+                  <div class='row-4'>
+
+                  <img class='card-img-top img-fluid rounded float-left' src="<?php echo $allyrow['image_url'];  ?>" />
+                  <div class='card-body'>
+                    <h4><?php echo $allyrow['name']; ?></h4>
+                    <form method='POST' action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+                      <a type='submit' class='btn btn-danger'>Remove Friend</a>
+                    </form>
+                  </div>
+              </div>
+
+                </div>
+                
+                  
+
+                </div>
+            <?php
+              }
+            }
+            ?>
+            <div class='row-4'>
+                  <h3>Amnemonemomnes</h3>
+                  <?php if ($newEnemy->num_rows > 0) {
+              while ($enemyrow = $newEnemy->fetch_assoc()) { ?>
+                <div class='card'>
+
+                  <img class='card-img-top img-fluid rounded float-left' src="<?php echo $enemyrow['image_url'];  ?>" />
+                  <div class='card-body'>
+                    <h4><?php echo $enemyrow['name']; ?></h4>
+                    <form method='POST' action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+                      <a type='submit' class='btn btn-danger'>Remove Enemy</a>
+                    </form>
+                  </div>
+
+                </div>
+                <?php
+              }
+            }
+            ?>
+          </div>
         </div>
       </div>
-
-
   <?php
     }
   }
   ?>
+
+
+
+
 
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -93,5 +146,5 @@ $conn->close();
 
 </html>
 
-<?php //include "inputHero.php"
+<?php //include "delOrAdd.php" 
 ?>
